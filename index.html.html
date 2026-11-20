@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorium Apung-Tenggelam | Hukum Archimedes Kelas 9</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka (Ramah & Edukatif) + Inter (Keterbacaan Angka/Rumus) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        ocean: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        },
+                        mint: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        sun: {
+                            50: '#fefce8',
+                            100: '#fef9c3',
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f0f9ff;
+            background-image: radial-gradient(#bae6fd 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Animasi Riak Permukaan Zat Cair */
+        @keyframes wave {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-2px); }
+        }
+        .liquid-surface {
+            animation: wave 2.5s ease-in-out infinite;
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #0284c7;
+            border: 3px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+            cursor: pointer;
+            margin-top: -7px;
+            transition: transform 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #bae6fd;
+            border-radius: 999px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-white/90 backdrop-blur-md border-b-2 border-ocean-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-br from-ocean-500 to-mint-500 p-2.5 rounded-2xl text-white shadow-md">
+                    <i data-lucide="flask-conical" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-xl sm:text-2xl font-bold text-ocean-700 tracking-tight">
+                        Laboratorium Apung-Tenggelam
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                        Simulasi Interaktif Hukum Archimedes • IPA Kelas 9 SMP/MTs
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="toggleGuideModal(true)" class="flex items-center gap-2 bg-sun-100 hover:bg-sun-300 text-amber-900 font-semibold text-sm px-4 py-2 rounded-xl border border-sun-400 transition shadow-sm">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    <span>Panduan Konsep</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- GRID UTAMA: KIRI (SIMULASI & KONTROL) | KANAN (KALKULATOR BERTAHAP) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- KOLOM KIRI: AREA SIMULASI & PANEL KONTROL (7 KOLOM) -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+                
+                <!-- KARTU SIMULASI BEJANA -->
+                <div class="bg-white rounded-3xl shadow-lg border-2 border-ocean-200 p-4 sm:p-6 relative overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-ocean-100 text-ocean-700 p-1.5 rounded-lg">
+                                <i data-lucide="eye" class="w-5 h-5"></i>
+                            </span>
+                            <h2 class="font-display text-lg font-bold text-slate-800">Bejana Percobaan</h2>
+                        </div>
+
+                        <!-- STATUS KEADAAN BENDA (BADGE) -->
+                        <div id="state-badge" class="px-4 py-1.5 rounded-full font-display font-bold text-sm tracking-wide shadow-sm flex items-center gap-2 bg-mint-100 text-mint-700 border border-mint-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-mint-500 animate-ping"></span>
+                            <span id="state-text">TERAPUNG</span>
+                        </div>
+                    </div>
+
+                    <!-- CANVAS / AREA VISUALISASI FISIKA -->
+                    <div class="relative w-full h-[360px] sm:h-[400px] bg-gradient-to-b from-sky-50 to-white rounded-2xl border-2 border-slate-200 overflow-hidden flex justify-center items-end select-none" id="sim-container">
+                        
+                        <!-- Skala Kedalaman / Tinggi Bejana (Kiri) -->
+                        <div class="absolute left-3 top-6 bottom-6 w-8 flex flex-col justify-between text-[11px] font-mono text-slate-400 pointer-events-none z-10 border-r border-slate-300 pr-1">
+                            <span>0 cm</span>
+                            <span>10 cm</span>
+                            <span>20 cm</span>
+                            <span>30 cm</span>
+                            <span>40 cm</span>
+                        </div>
+
+                        <!-- Info Gravitasi & Massa Jenis Zat Cair (Kanan Atas) -->
+                        <div class="absolute right-3 top-3 bg-white/90 backdrop-blur-sm border border-ocean-200 rounded-xl p-2.5 text-xs shadow-sm z-20 space-y-1">
+                            <div class="flex items-center justify-between gap-4">
+                                <span class="text-slate-500">Zat Cair:</span>
+                                <span id="hud-fluid-name" class="font-bold text-ocean-700">Air Tawar</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <span class="text-slate-500">Massa Jenis (&rho;<sub>cair</sub>):</span>
+                                <span id="hud-fluid-rho" class="font-mono font-bold text-ocean-600">1.000 kg/m&sup3;</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <span class="text-slate-500">Percepatan Gravitasi (g):</span>
+                                <span class="font-mono font-bold text-slate-700">10 m/s&sup2;</span>
+                            </div>
+                        </div>
+
+                        <!-- Legenda Panah Vektor (Kiri Atas) -->
+                        <div class="absolute left-14 top-3 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-xl p-2.5 text-xs shadow-sm z-20 space-y-1.5">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-sm bg-emerald-500 inline-block"></span>
+                                <span class="font-semibold text-slate-700">F<sub>A</sub> = Gaya Apung (ke atas)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-sm bg-rose-500 inline-block"></span>
+                                <span class="font-semibold text-slate-700">W = Gaya Berat (ke bawah)</span>
+                            </div>
+                        </div>
+
+                        <!-- BEJANA KACA -->
+                        <div class="relative w-64 sm:w-80 h-[310px] border-x-4 border-b-4 border-slate-400/70 rounded-b-3xl bg-white/30 shadow-inner flex justify-center overflow-visible">
+                            
+                            <!-- ZAT CAIR DI DALAM BEJANA -->
+                            <div id="liquid-body" class="absolute bottom-0 left-0 right-0 h-[230px] bg-sky-400/40 rounded-b-[20px] transition-colors duration-500">
+                                <!-- Permukaan Gelombang -->
+                                <div id="liquid-surface" class="liquid-surface w-full h-3 bg-sky-300/60 border-t-2 border-sky-500/70"></div>
+                            </div>
+
+                            <!-- BENDA UJI (KUBUS / BALOK) -->
+                            <div id="test-object" class="absolute w-24 h-24 rounded-2xl shadow-xl border-2 flex flex-col items-center justify-center transition-all duration-75 z-10"
+                                 style="background-color: #f59e0b; border-color: #b45309; bottom: 180px;">
+                                
+                                <!-- Tekstur / Label pada Benda -->
+                                <span id="obj-label" class="font-display font-bold text-white text-sm drop-shadow">Kayu</span>
+                                <span id="obj-rho-badge" class="text-[11px] font-mono bg-black/25 text-white px-2 py-0.5 rounded-full mt-0.5">600 kg/m&sup3;</span>
+
+                                <!-- VEKTOR GAYA APUNG (F_A - KE ATAS) -->
+                                <div id="vector-fa" class="absolute bottom-1/2 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none origin-bottom transition-all duration-150" style="height: 80px;">
+                                    <!-- Label Nilai F_A -->
+                                    <div class="bg-emerald-600 text-white text-[11px] font-mono font-bold px-2 py-0.5 rounded-md shadow whitespace-nowrap mb-1">
+                                        F<sub>A</sub> = <span id="val-fa-arrow">0</span> N
+                                    </div>
+                                    <!-- Kepala Panah Atas -->
+                                    <div class="w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-b-[12px] border-b-emerald-500"></div>
+                                    <!-- Batang Panah -->
+                                    <div class="w-2 flex-grow bg-emerald-500 rounded-b-full shadow-sm"></div>
+                                </div>
+
+                                <!-- VEKTOR GAYA BERAT (W - KE BAWAH) -->
+                                <div id="vector-w" class="absolute top-1/2 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none origin-top transition-all duration-150" style="height: 80px;">
+                                    <!-- Batang Panah -->
+                                    <div class="w-2 flex-grow bg-rose-500 rounded-t-full shadow-sm"></div>
+                                    <!-- Kepala Panah Bawah -->
+                                    <div class="w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-t-[12px] border-t-rose-500"></div>
+                                    <!-- Label Nilai W -->
+                                    <div class="bg-rose-600 text-white text-[11px] font-mono font-bold px-2 py-0.5 rounded-md shadow whitespace-nowrap mt-1">
+                                        W = <span id="val-w-arrow">0</span> N
+                                    </div>
+                                </div>
+
+                                <!-- Titik Pusat Massa Benda -->
+                                <div class="w-3 h-3 rounded-full bg-white border-2 border-slate-800 z-20"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- RINGKASAN DATA REAL-TIME DI BAWAH BEJANA -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                        <div class="bg-ocean-50 border border-ocean-200 rounded-2xl p-3 text-center">
+                            <p class="text-[11px] font-semibold text-ocean-700 uppercase">Volume Benda (V<sub>b</sub>)</p>
+                            <p class="font-mono font-bold text-base sm:text-lg text-slate-800 mt-0.5"><span id="readout-vb">0.002</span> m&sup3;</p>
+                        </div>
+                        <div class="bg-mint-50 border border-mint-200 rounded-2xl p-3 text-center">
+                            <p class="text-[11px] font-semibold text-mint-700 uppercase">Volume Tercelup (V<sub>bf</sub>)</p>
+                            <p class="font-mono font-bold text-base sm:text-lg text-emerald-700 mt-0.5"><span id="readout-vbf">0.0012</span> m&sup3;</p>
+                        </div>
+                        <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3 text-center">
+                            <p class="text-[11px] font-semibold text-rose-700 uppercase">Gaya Berat (W)</p>
+                            <p class="font-mono font-bold text-base sm:text-lg text-rose-600 mt-0.5"><span id="readout-w">12.0</span> N</p>
+                        </div>
+                        <div class="bg-sun-50 border border-sun-300 rounded-2xl p-3 text-center">
+                            <p class="text-[11px] font-semibold text-amber-800 uppercase">Gaya Apung (F<sub>A</sub>)</p>
+                            <p class="font-mono font-bold text-base sm:text-lg text-amber-700 mt-0.5"><span id="readout-fa">12.0</span> N</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KARTU PANEL KONTROL EKSPERIMEN -->
+                <div class="bg-white rounded-3xl shadow-lg border-2 border-mint-200 p-4 sm:p-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="bg-mint-100 text-mint-700 p-1.5 rounded-lg">
+                            <i data-lucide="sliders" class="w-5 h-5"></i>
+                        </span>
+                        <h2 class="font-display text-lg font-bold text-slate-800">Panel Kontrol Variabel</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- KONTROL 1: PILIH ZAT CAIR -->
+                        <div class="bg-ocean-50/70 p-4 rounded-2xl border border-ocean-200">
+                            <label class="block text-sm font-bold text-ocean-800 mb-2.5 flex items-center gap-1.5">
+                                <i data-lucide="droplets" class="w-4 h-4 text-ocean-600"></i>
+                                1. Pilih Jenis Zat Cair (&rho;<sub>cair</sub>)
+                            </label>
+                            <div class="grid grid-cols-3 gap-2" id="fluid-buttons">
+                                <button type="button" onclick="selectFluid('oil')" data-fluid="oil"
+                                    class="fluid-btn p-2.5 rounded-xl border-2 text-center transition flex flex-col items-center gap-1 bg-white border-slate-200 hover:border-amber-400">
+                                    <span class="w-4 h-4 rounded-full bg-amber-300 border border-amber-500"></span>
+                                    <span class="text-xs font-bold text-slate-700">Minyak</span>
+                                    <span class="text-[10px] font-mono text-slate-500">800 kg/m&sup3;</span>
+                                </button>
+                                
+                                <button type="button" onclick="selectFluid('water')" data-fluid="water"
+                                    class="fluid-btn p-2.5 rounded-xl border-2 text-center transition flex flex-col items-center gap-1 bg-ocean-100 border-ocean-500 shadow-sm">
+                                    <span class="w-4 h-4 rounded-full bg-sky-400 border border-sky-600"></span>
+                                    <span class="text-xs font-bold text-ocean-900">Air Tawar</span>
+                                    <span class="text-[10px] font-mono text-ocean-700">1.000 kg/m&sup3;</span>
+                                </button>
+
+                                <button type="button" onclick="selectFluid('saltwater')" data-fluid="saltwater"
+                                    class="fluid-btn p-2.5 rounded-xl border-2 text-center transition flex flex-col items-center gap-1 bg-white border-slate-200 hover:border-teal-400">
+                                    <span class="w-4 h-4 rounded-full bg-teal-400 border border-teal-600"></span>
+                                    <span class="text-xs font-bold text-slate-700">Air Garam</span>
+                                    <span class="text-[10px] font-mono text-slate-500">1.200 kg/m&sup3;</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- KONTROL 2: PRESET MATERIAL BENDA -->
+                        <div class="bg-sun-50/70 p-4 rounded-2xl border border-sun-300">
+                            <label class="block text-sm font-bold text-amber-900 mb-2.5 flex items-center gap-1.5">
+                                <i data-lucide="box" class="w-4 h-4 text-amber-600"></i>
+                                2. Pilih Contoh Material Benda
+                            </label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="applyMaterialPreset('Kayu', 600, '#d97706', '#92400e')"
+                                    class="px-3 py-2 rounded-xl bg-white hover:bg-amber-100 border border-amber-300 text-xs font-semibold text-slate-700 flex items-center justify-between transition">
+                                    <span>🪵 Kayu</span>
+                                    <span class="font-mono text-[10px] text-slate-500">600</span>
+                                </button>
+                                <button type="button" onclick="applyMaterialPreset('Es Batu', 900, '#38bdf8', '#0284c7')"
+                                    class="px-3 py-2 rounded-xl bg-white hover:bg-sky-100 border border-sky-300 text-xs font-semibold text-slate-700 flex items-center justify-between transition">
+                                    <span>🧊 Es Batu</span>
+                                    <span class="font-mono text-[10px] text-slate-500">900</span>
+                                </button>
+                                <button type="button" onclick="applyMaterialPreset('Plastik PVC', 1000, '#10b981', '#047857')"
+                                    class="px-3 py-2 rounded-xl bg-white hover:bg-emerald-100 border border-emerald-300 text-xs font-semibold text-slate-700 flex items-center justify-between transition">
+                                    <span>🧪 Plastik</span>
+                                    <span class="font-mono text-[10px] text-slate-500">1.000</span>
+                                </button>
+                                <button type="button" onclick="applyMaterialPreset('Batu Bata', 1800, '#e11d48', '#9f1239')"
+                                    class="px-3 py-2 rounded-xl bg-white hover:bg-rose-100 border border-rose-300 text-xs font-semibold text-slate-700 flex items-center justify-between transition">
+                                    <span>🧱 Batu</span>
+                                    <span class="font-mono text-[10px] text-slate-500">1.800</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- SLIDER MASSA JENIS BENDA -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="slider-rho" class="text-xs sm:text-sm font-bold text-slate-700">
+                                    3. Atur Massa Jenis Benda (&rho;<sub>benda</sub>)
+                                </label>
+                                <span id="label-rho-benda" class="font-mono text-sm font-bold text-ocean-700 bg-ocean-100 px-2.5 py-0.5 rounded-lg">
+                                    600 kg/m&sup3;
+                                </span>
+                            </div>
+                            <input type="range" id="slider-rho" min="200" max="2000" step="50" value="600" class="w-full">
+                            <div class="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
+                                <span>200 (Ringan)</span>
+                                <span>1.000 (Air)</span>
+                                <span>2.000 (Berat)</span>
+                            </div>
+                        </div>
+
+                        <!-- SLIDER VOLUME BENDA -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="slider-vol" class="text-xs sm:text-sm font-bold text-slate-700">
+                                    4. Atur Volume Total Benda (V<sub>benda</sub>)
+                                </label>
+                                <span id="label-vol-benda" class="font-mono text-sm font-bold text-mint-700 bg-mint-100 px-2.5 py-0.5 rounded-lg">
+                                    0.002 m&sup3;
+                                </span>
+                            </div>
+                            <input type="range" id="slider-vol" min="0.001" max="0.005" step="0.0005" value="0.002" class="w-full">
+                            <div class="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
+                                <span>0.001 m&sup3; (Kecil)</span>
+                                <span>0.003 m&sup3;</span>
+                                <span>0.005 m&sup3; (Besar)</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- KOLOM KANAN: KALKULATOR LATIHAN BERTAHAP (5 KOLOM) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                
+                <div class="bg-white rounded-3xl shadow-lg border-2 border-sun-400 p-5 sm:p-6">
+                    <!-- Header Kalkulator Bertahap -->
+                    <div class="flex items-start justify-between gap-3 mb-4 pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <div class="bg-sun-300 text-amber-900 p-2 rounded-xl shadow-sm">
+                                <i data-lucide="calculator" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-display text-lg font-bold text-slate-800">Kalkulator Latihan Bertahap</h2>
+                                <p class="text-xs text-slate-500">Uji pemahamanmu menghitung Gaya Apung (F<sub>A</sub>)</p>
+                            </div>
+                        </div>
+                        <button onclick="syncQuizWithSimulation()" title="Ambil data dari simulasi saat ini"
+                            class="bg-ocean-50 hover:bg-ocean-100 text-ocean-700 border border-ocean-200 text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition shrink-0">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            <span>Soal Baru</span>
+                        </button>
+                    </div>
+
+                    <!-- KOTAK SOAL BERDASARKAN SIMULASI -->
+                    <div class="bg-gradient-to-br from-ocean-50 to-mint-50 border border-ocean-200 rounded-2xl p-4 mb-5">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold uppercase tracking-wider text-ocean-700">Studi Kasus Percobaan:</span>
+                            <span id="quiz-condition-tag" class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-white text-ocean-700 border border-ocean-200">Terapung</span>
+                        </div>
+                        <p id="quiz-story" class="text-sm text-slate-700 leading-relaxed">
+                            Sebuah benda <strong class="text-slate-900">Kayu</strong> dimasukkan ke dalam <strong class="text-ocean-700">Air Tawar</strong>. Hitunglah besar Gaya Apung (F<sub>A</sub>) yang dialami benda tersebut menggunakan langkah-langkah berikut!
+                        </p>
+                    </div>
+
+                    <!-- LANGKAH-LANGKAH PENGERJAAN INTERAKTIF -->
+                    <div class="space-y-4">
+
+                        <!-- LANGKAH 1: IDENTIFIKASI MASSA JENIS ZAT CAIR -->
+                        <div id="step-1-card" class="p-4 rounded-2xl border-2 border-ocean-400 bg-white transition-all">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold bg-ocean-600 text-white px-2.5 py-0.5 rounded-full">Langkah 1</span>
+                                <span id="step-1-status" class="text-xs font-semibold text-ocean-600">Sedang dikerjakan</span>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-800 mb-2">
+                                Tentukan massa jenis zat cair (&rho;<sub>cair</sub>) yang digunakan dalam satuan kg/m&sup3;:
+                            </p>
+                            <div class="flex gap-2">
+                                <input type="number" id="input-step-1" placeholder="Contoh: 1000"
+                                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ocean-500">
+                                <button onclick="checkStep1()" id="btn-step-1"
+                                    class="bg-ocean-600 hover:bg-ocean-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition shrink-0">
+                                    Cek
+                                </button>
+                            </div>
+                            <p id="feedback-step-1" class="text-xs mt-2 hidden"></p>
+                        </div>
+
+                        <!-- LANGKAH 2: IDENTIFIKASI VOLUME BENDA YANG TERCELUP -->
+                        <div id="step-2-card" class="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/70 opacity-60 pointer-events-none transition-all">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold bg-slate-500 text-white px-2.5 py-0.5 rounded-full" id="step-2-badge">Langkah 2</span>
+                                <span id="step-2-status" class="text-xs font-semibold text-slate-400">Terkunci</span>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-800 mb-1">
+                                Berapa volume benda yang <strong>tercelup</strong> di dalam zat cair (V<sub>bf</sub>)?
+                            </p>
+                            <p class="text-xs text-slate-500 mb-2.5">
+                                <i data-lucide="info" class="w-3.5 h-3.5 inline text-amber-500"></i>
+                                Ingat! Yang dihitung adalah volume bagian benda yang masuk ke cairan (lihat panel data bejana).
+                            </p>
+                            <div class="flex gap-2">
+                                <input type="number" step="0.0001" id="input-step-2" placeholder="Contoh: 0.0012"
+                                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ocean-500">
+                                <button onclick="checkStep2()" id="btn-step-2"
+                                    class="bg-ocean-600 hover:bg-ocean-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition shrink-0">
+                                    Cek
+                                </button>
+                            </div>
+                            <p id="feedback-step-2" class="text-xs mt-2 hidden"></p>
+                        </div>
+
+                        <!-- LANGKAH 3: SUBSTITUSI RUMUS F_A = rho * g * V -->
+                        <div id="step-3-card" class="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/70 opacity-60 pointer-events-none transition-all">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold bg-slate-500 text-white px-2.5 py-0.5 rounded-full" id="step-3-badge">Langkah 3</span>
+                                <span id="step-3-status" class="text-xs font-semibold text-slate-400">Terkunci</span>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-800 mb-2">
+                                Hitung Gaya Apung menggunakan rumus <span class="font-mono bg-sun-100 px-1.5 py-0.5 rounded text-amber-900">F<sub>A</sub> = &rho;<sub>cair</sub> &times; g &times; V<sub>bf</sub></span> (gunakan g = 10 m/s&sup2;):
+                            </p>
+                            
+                            <!-- Bantuan Substitusi Visual -->
+                            <div class="bg-slate-100 rounded-xl p-2.5 mb-2.5 font-mono text-xs text-slate-700 flex flex-wrap items-center justify-center gap-1.5">
+                                <span>F<sub>A</sub> =</span>
+                                <span id="formula-rho" class="px-2 py-0.5 bg-white rounded border border-slate-300 font-bold text-ocean-700">?</span>
+                                <span>&times;</span>
+                                <span class="px-2 py-0.5 bg-white rounded border border-slate-300 font-bold text-slate-700">10</span>
+                                <span>&times;</span>
+                                <span id="formula-vbf" class="px-2 py-0.5 bg-white rounded border border-slate-300 font-bold text-mint-700">?</span>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <input type="number" step="0.1" id="input-step-3" placeholder="Hasil dalam Newton (N)"
+                                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-mint-500">
+                                <button onclick="checkStep3()" id="btn-step-3"
+                                    class="bg-mint-600 hover:bg-mint-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition shrink-0">
+                                    Hitung
+                                </button>
+                            </div>
+                            <p id="feedback-step-3" class="text-xs mt-2 hidden"></p>
+                        </div>
+
+                    </div>
+
+                    <!-- KOTAK KESIMPULAN AKHIR (MUNCUL SETELAH LANGKAH 3 BENAR) -->
+                    <div id="final-conclusion-box" class="hidden mt-5 bg-gradient-to-r from-mint-500 to-ocean-500 text-white p-4 rounded-2xl shadow-md">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-white/20 p-2 rounded-xl shrink-0">
+                                <i data-lucide="award" class="w-6 h-6 text-sun-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-display font-bold text-base">Hebat! Perhitunganmu Tepat!</h3>
+                                <p id="final-explanation-text" class="text-xs sm:text-sm text-white/95 mt-1 leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- KARTU RUMUS CEPAT & RINGKASAN KONSEP -->
+                <div class="bg-sun-50 rounded-3xl border-2 border-sun-300 p-5">
+                    <h3 class="font-display font-bold text-amber-900 text-base mb-3 flex items-center gap-2">
+                        <i data-lucide="lightbulb" class="w-5 h-5 text-amber-500"></i>
+                        Catatan Penting Laboratorium
+                    </h3>
+                    <ul class="space-y-2 text-xs sm:text-sm text-amber-950">
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-emerald-600">1. Terapung:</span>
+                            <span>Terjadi jika <strong>&rho;<sub>benda</sub> &lt; &rho;<sub>cair</sub></strong>. Sebagian benda muncul di permukaan, dan <strong>F<sub>A</sub> = W</strong>.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-sky-600">2. Melayang:</span>
+                            <span>Terjadi jika <strong>&rho;<sub>benda</sub> = &rho;<sub>cair</sub></strong>. Seluruh benda tercelup tanpa menyentuh dasar, dan <strong>F<sub>A</sub> = W</strong>.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-rose-600">3. Tenggelam:</span>
+                            <span>Terjadi jika <strong>&rho;<sub>benda</sub> &gt; &rho;<sub>cair</sub></strong>. Benda berada di dasar bejana karena <strong>W &gt; F<sub>A</sub></strong>.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL PANDUAN KONSEP HUKUM ARCHIMEDES -->
+    <div id="guide-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border-2 border-ocean-200 relative animate-fade-in">
+            <button onclick="toggleGuideModal(false)" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-ocean-100 text-ocean-600 p-3 rounded-2xl">
+                    <i data-lucide="book-open-check" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h2 class="font-display text-xl font-bold text-slate-800">Bunyi & Rumus Hukum Archimedes</h2>
+                    <p class="text-xs text-slate-500">Materi IPA SMP Kelas 9 Semester 2</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-sm text-slate-700 leading-relaxed">
+                <blockquote class="bg-ocean-50 border-l-4 border-ocean-500 p-4 rounded-r-2xl italic text-ocean-900">
+                    "Suatu benda yang dicelupkan sebagian atau seluruhnya ke dalam zat cair akan mengalami gaya ke atas (gaya apung) yang besarnya sama dengan berat zat cair yang dipindahkan oleh benda tersebut."
+                </blockquote>
+
+                <div class="bg-sun-50 border border-sun-300 rounded-2xl p-4 text-center">
+                    <p class="text-xs font-bold uppercase text-amber-800 mb-1">Persamaan Matematis</p>
+                    <p class="font-mono text-xl font-bold text-slate-900">F<sub>A</sub> = &rho;<sub>cair</sub> &times; g &times; V<sub>bf</sub></p>
+                    <div class="grid grid-cols-2 gap-2 text-left text-xs mt-3 pt-3 border-t border-sun-200 text-slate-600">
+                        <div><strong>F<sub>A</sub></strong> : Gaya apung (Newton)</div>
+                        <div><strong>&rho;<sub>cair</sub></strong> : Massa jenis zat cair (kg/m&sup3;)</div>
+                        <div><strong>g</strong> : Percepatan gravitasi (10 m/s&sup2;)</div>
+                        <div><strong>V<sub>bf</sub></strong> : Volume benda tercelup (m&sup3;)</div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-500">
+                    <strong>Tips Eksperimen:</strong> Ubah-ubah jenis zat cair atau massa jenis benda di panel kontrol, lalu klik tombol <strong>"Soal Baru"</strong> pada kalkulator di sebelah kanan untuk melatih kemampuan berhitungmu!
+                </p>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button onclick="toggleGuideModal(false)" class="bg-ocean-600 hover:bg-ocean-700 text-white font-bold px-6 py-2.5 rounded-xl shadow transition">
+                    Mulai Eksperimen!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIKA FISIKA & INTERAKTIVITAS -->
+    <script>
+        // Inisialisasi ikon Lucide
+        lucide.createIcons();
+
+        // KONSTANTA & DATA ZAT CAIR
+        const GRAVITY = 10; // m/s^2 (standar SMP)
+        const FLUIDS = {
+            oil: {
+                name: 'Minyak Goreng',
+                rho: 800,
+                bgClass: 'bg-amber-300/50',
+                surfaceClass: 'bg-amber-200/80 border-amber-400'
+            },
+            water: {
+                name: 'Air Tawar',
+                rho: 1000,
+                bgClass: 'bg-sky-400/45',
+                surfaceClass: 'bg-sky-300/70 border-sky-500'
+            },
+            saltwater: {
+                name: 'Air Garam',
+                rho: 1200,
+                bgClass: 'bg-teal-400/45',
+                surfaceClass: 'bg-teal-300/70 border-teal-500'
+            }
+        };
+
+        // STATE SIMULASI
+        let state = {
+            fluidKey: 'water',
+            rhoFluid: 1000,
+            rhoObject: 600,
+            volObject: 0.002, // m^3
+            materialName: 'Kayu',
+            objColor: '#d97706',
+            objBorder: '#92400e',
+            // Hasil perhitungan fisika
+            weightW: 0,
+            buoyantFa: 0,
+            volSubmerged: 0,
+            condition: 'TERAPUNG', // 'TERAPUNG' | 'MELAYANG' | 'TENGGELAM'
+            // Posisi animasi (pixel dari dasar bejana)
+            currentBottomPx: 180,
+            targetBottomPx: 180
+        };
+
+        // STATE KALKULATOR BERTAHAP
+        let quizState = {
+            rhoFluid: 1000,
+            volSubmerged: 0.0012,
+            buoyantFa: 12,
+            weightW: 12,
+            condition: 'TERAPUNG',
+            materialName: 'Kayu',
+            fluidName: 'Air Tawar'
+        };
+
+        // ELEMEN DOM
+        const sliderRho = document.getElementById('slider-rho');
+        const sliderVol = document.getElementById('slider-vol');
+        const testObjectEl = document.getElementById('test-object');
+        const liquidBodyEl = document.getElementById('liquid-body');
+        const liquidSurfaceEl = document.getElementById('liquid-surface');
+
+        // FUNGSI KALKULASI FISIKA ARCHIMEDES
+        function calculatePhysics() {
+            const rhoF = state.rhoFluid;
+            const rhoO = state.rhoObject;
+            const volO = state.volObject;
+
+            // 1. Gaya Berat Benda: W = rho_benda * V_benda * g
+            const W = rhoO * volO * GRAVITY;
+
+            // 2. Tentukan Kondisi: Terapung, Melayang, atau Tenggelam
+            let condition = '';
+            let volSub = 0;
+            let Fa = 0;
+
+            if (rhoO < rhoF) {
+                condition = 'TERAPUNG';
+                // Saat terapung: Fa = W => rhoF * g * V_bf = rhoO * g * V_b
+                // Maka V_bf = (rhoO / rhoF) * V_b
+                volSub = (rhoO / rhoF) * volO;
+                Fa = W;
+            } else if (rhoO === rhoF) {
+                condition = 'MELAYANG';
+                // Seluruh benda tercelup, melayang di tengah cairan
+                volSub = volO;
+                Fa = rhoF * GRAVITY * volSub; // Sama dengan W
+            } else {
+                condition = 'TENGGELAM';
+                // Seluruh benda tercelup dan menyentuh dasar bejana
+                volSub = volO;
+                Fa = rhoF * GRAVITY * volSub; // Fa < W
+            }
+
+            state.weightW = Number(W.toFixed(2));
+            state.buoyantFa = Number(Fa.toFixed(2));
+            state.volSubmerged = Number(volSub.toFixed(5));
+            state.condition = condition;
+
+            updateVisuals();
+        }
+
+        // PEMBARUAN TAMPILAN SIMULASI & VEKTOR
+        function updateVisuals() {
+            // Ukuran kubus menyesuaikan volume secara proporsional (antara 76px - 112px)
+            const minVol = 0.001, maxVol = 0.005;
+            const sizeRatio = (state.volObject - minVol) / (maxVol - minVol);
+            const boxSizePx = Math.round(76 + sizeRatio * 36); // px
+
+            testObjectEl.style.width = `${boxSizePx}px`;
+            testObjectEl.style.height = `${boxSizePx}px`;
+            testObjectEl.style.backgroundColor = state.objColor;
+            testObjectEl.style.borderColor = state.objBorder;
+
+            // Tinggi cairan di bejana adalah 230px
+            const liquidHeightPx = 230;
+            const submergedFraction = state.volSubmerged / state.volObject;
+
+            // Hitung target posisi bawah benda (bottom px dari dasar bejana)
+            if (state.condition === 'TERAPUNG') {
+                // Bagian tercelup berada di bawah garis permukaan cairan (230px)
+                const submergedHeightPx = boxSizePx * submergedFraction;
+                state.targetBottomPx = liquidHeightPx - submergedHeightPx;
+            } else if (state.condition === 'MELAYANG') {
+                // Melayang di tengah-tengah zat cair
+                state.targetBottomPx = (liquidHeightPx / 2) - (boxSizePx / 2);
+            } else {
+                // Tenggelam menyentuh dasar bejana (0px)
+                state.targetBottomPx = 0;
+            }
+
+            // Update Badge Kondisi
+            const badgeEl = document.getElementById('state-badge');
+            const stateTextEl = document.getElementById('state-text');
+            stateTextEl.textContent = state.condition;
+
+            if (state.condition === 'TERAPUNG') {
+                badgeEl.className = 'px-4 py-1.5 rounded-full font-display font-bold text-sm tracking-wide shadow-sm flex items-center gap-2 bg-mint-100 text-mint-700 border border-mint-400';
+            } else if (state.condition === 'MELAYANG') {
+                badgeEl.className = 'px-4 py-1.5 rounded-full font-display font-bold text-sm tracking-wide shadow-sm flex items-center gap-2 bg-sky-100 text-sky-700 border border-sky-400';
+            } else {
+                badgeEl.className = 'px-4 py-1.5 rounded-full font-display font-bold text-sm tracking-wide shadow-sm flex items-center gap-2 bg-rose-100 text-rose-700 border border-rose-400';
+            }
+
+            // Update Label di Benda & HUD
+            document.getElementById('obj-label').textContent = state.materialName;
+            document.getElementById('obj-rho-badge').innerHTML = `${state.rhoObject.toLocaleString('id-ID')} kg/m&sup3;`;
+            document.getElementById('label-rho-benda').innerHTML = `${state.rhoObject.toLocaleString('id-ID')} kg/m&sup3;`;
+            document.getElementById('label-vol-benda').innerHTML = `${state.volObject} m&sup3;`;
+
+            // Update Readout Data di Bawah Bejana
+            document.getElementById('readout-vb').textContent = state.volObject;
+            document.getElementById('readout-vbf').textContent = state.volSubmerged;
+            document.getElementById('readout-w').textContent = state.weightW;
+            document.getElementById('readout-fa').textContent = state.buoyantFa;
+
+            // Update Panjang Vektor Anak Panah F_A dan W (Skala visual: 1 N = 1.6px, min 38px, max 135px)
+            const scalePxPerNewton = 1.6;
+            const faHeight = Math.min(135, Math.max(38, state.buoyantFa * scalePxPerNewton));
+            const wHeight = Math.min(135, Math.max(38, state.weightW * scalePxPerNewton));
+
+            document.getElementById('vector-fa').style.height = `${faHeight}px`;
+            document.getElementById('vector-w').style.height = `${wHeight}px`;
+            document.getElementById('val-fa-arrow').textContent = state.buoyantFa;
+            document.getElementById('val-w-arrow').textContent = state.weightW;
+        }
+
+        // ANIMASI LOOP HALUS UNTUK GERAKAN BENDA NAIK/TURUN
+        function animateObject() {
+            const diff = state.targetBottomPx - state.currentBottomPx;
+            if (Math.abs(diff) > 0.2) {
+                state.currentBottomPx += diff * 0.12;
+                testObjectEl.style.bottom = `${state.currentBottomPx}px`;
+            } else {
+                state.currentBottomPx = state.targetBottomPx;
+                testObjectEl.style.bottom = `${state.currentBottomPx}px`;
+            }
+            requestAnimationFrame(animateObject);
+        }
+
+        // PILIH ZAT CAIR
+        function selectFluid(key) {
+            const fluid = FLUIDS[key];
+            if (!fluid) return;
+
+            state.fluidKey = key;
+            state.rhoFluid = fluid.rho;
+
+            // Update warna cairan
+            liquidBodyEl.className = `absolute bottom-0 left-0 right-0 h-[230px] rounded-b-[20px] transition-colors duration-500 ${fluid.bgClass}`;
+            liquidSurfaceEl.className = `liquid-surface w-full h-3 border-t-2 ${fluid.surfaceClass}`;
+
+            // Update HUD
+            document.getElementById('hud-fluid-name').textContent = fluid.name;
+            document.getElementById('hud-fluid-rho').innerHTML = `${fluid.rho.toLocaleString('id-ID')} kg/m&sup3;`;
+
+            // Update tampilan tombol aktif
+            document.querySelectorAll('.fluid-btn').forEach(btn => {
+                if (btn.dataset.fluid === key) {
+                    btn.className = 'fluid-btn p-2.5 rounded-xl border-2 text-center transition flex flex-col items-center gap-1 bg-ocean-100 border-ocean-500 shadow-sm';
+                } else {
+                    btn.className = 'fluid-btn p-2.5 rounded-xl border-2 text-center transition flex flex-col items-center gap-1 bg-white border-slate-200 hover:border-ocean-300';
+                }
+            });
+
+            calculatePhysics();
+        }
+
+        // PRESET MATERIAL BENDA
+        function applyMaterialPreset(name, rho, color, border) {
+            state.materialName = name;
+            state.rhoObject = rho;
+            state.objColor = color;
+            state.objBorder = border;
+            sliderRho.value = rho;
+            calculatePhysics();
+        }
+
+        // EVENT LISTENER SLIDER
+        sliderRho.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value, 10);
+            state.rhoObject = val;
+            state.materialName = 'Benda Uji';
+            // Ubah warna benda berdasarkan massa jenis agar intuitif
+            if (val < 850) {
+                state.objColor = '#f59e0b';
+                state.objBorder = '#b45309';
+            } else if (val <= 1150) {
+                state.objColor = '#10b981';
+                state.objBorder = '#047857';
+            } else {
+                state.objColor = '#6366f1';
+                state.objBorder = '#3730a3';
+            }
+            calculatePhysics();
+        });
+
+        sliderVol.addEventListener('input', (e) => {
+            state.volObject = parseFloat(e.target.value);
+            calculatePhysics();
+        });
+
+        // ==========================================
+        // LOGIKA KALKULATOR LATIHAN BERTAHAP
+        // ==========================================
+        function syncQuizWithSimulation() {
+            quizState = {
+                rhoFluid: state.rhoFluid,
+                volSubmerged: state.volSubmerged,
+                buoyantFa: state.buoyantFa,
+                weightW: state.weightW,
+                condition: state.condition,
+                materialName: state.materialName,
+                fluidName: FLUIDS[state.fluidKey].name
+            };
+
+            // Update teks studi kasus
+            document.getElementById('quiz-condition-tag').textContent = quizState.condition;
+            document.getElementById('quiz-story').innerHTML = `
+                Sebuah benda <strong class="text-slate-900">${quizState.materialName}</strong> (&rho; = ${state.rhoObject} kg/m&sup3;, V = ${state.volObject} m&sup3;) dicelupkan ke dalam <strong class="text-ocean-700">${quizState.fluidName}</strong>. Mari hitung besar Gaya Apung (F<sub>A</sub>) secara bertahap!
+            `;
+
+            // Reset seluruh langkah ke kondisi awal
+            resetStepUI();
+        }
+
+        function resetStepUI() {
+            // Step 1 aktif
+            const s1Card = document.getElementById('step-1-card');
+            s1Card.className = 'p-4 rounded-2xl border-2 border-ocean-400 bg-white transition-all';
+            document.getElementById('step-1-status').textContent = 'Sedang dikerjakan';
+            document.getElementById('step-1-status').className = 'text-xs font-semibold text-ocean-600';
+            document.getElementById('input-step-1').value = '';
+            document.getElementById('input-step-1').disabled = false;
+            document.getElementById('btn-step-1').disabled = false;
+            document.getElementById('feedback-step-1').classList.add('hidden');
+
+            // Step 2 terkunci
+            const s2Card = document.getElementById('step-2-card');
+            s2Card.className = 'p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/70 opacity-60 pointer-events-none transition-all';
+            document.getElementById('step-2-badge').className = 'text-xs font-bold bg-slate-500 text-white px-2.5 py-0.5 rounded-full';
+            document.getElementById('step-2-status').textContent = 'Terkunci';
+            document.getElementById('step-2-status').className = 'text-xs font-semibold text-slate-400';
+            document.getElementById('input-step-2').value = '';
+            document.getElementById('input-step-2').disabled = false;
+            document.getElementById('btn-step-2').disabled = false;
+            document.getElementById('feedback-step-2').classList.add('hidden');
+
+            // Step 3 terkunci
+            const s3Card = document.getElementById('step-3-card');
+            s3Card.className = 'p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/70 opacity-60 pointer-events-none transition-all';
+            document.getElementById('step-3-badge').className = 'text-xs font-bold bg-slate-500 text-white px-2.5 py-0.5 rounded-full';
+            document.getElementById('step-3-status').textContent = 'Terkunci';
+            document.getElementById('step-3-status').className = 'text-xs font-semibold text-slate-400';
+            document.getElementById('input-step-3').value = '';
+            document.getElementById('input-step-3').disabled = false;
+            document.getElementById('btn-step-3').disabled = false;
+            document.getElementById('feedback-step-3').classList.add('hidden');
+            document.getElementById('formula-rho').textContent = '?';
+            document.getElementById('formula-vbf').textContent = '?';
+
+            // Sembunyikan kesimpulan akhir
+            document.getElementById('final-conclusion-box').classList.add('hidden');
+        }
+
+        function checkStep1() {
+            const val = parseFloat(document.getElementById('input-step-1').value);
+            const feedback = document.getElementById('feedback-step-1');
+            feedback.classList.remove('hidden');
+
+            if (isNaN(val)) {
+                feedback.className = 'text-xs mt-2 text-amber-600 font-medium';
+                feedback.textContent = '⚠️ Masukkan angka massa jenis zat cair terlebih dahulu.';
+                return;
+            }
+
+            if (val === quizState.rhoFluid) {
+                // Benar!
+                feedback.className = 'text-xs mt-2 text-emerald-600 font-semibold';
+                feedback.textContent = `✅ Benar! Massa jenis ${quizState.fluidName} adalah ${quizState.rhoFluid} kg/m³.`;
+
+                document.getElementById('step-1-card').className = 'p-4 rounded-2xl border-2 border-emerald-400 bg-emerald-50/40 transition-all';
+                document.getElementById('step-1-status').textContent = 'Selesai ✓';
+                document.getElementById('step-1-status').className = 'text-xs font-bold text-emerald-600';
+                document.getElementById('input-step-1').disabled = true;
+                document.getElementById('btn-step-1').disabled = true;
+
+                // Buka Langkah 2
+                const s2Card = document.getElementById('step-2-card');
+                s2Card.className = 'p-4 rounded-2xl border-2 border-ocean-400 bg-white transition-all';
+                document.getElementById('step-2-badge').className = 'text-xs font-bold bg-ocean-600 text-white px-2.5 py-0.5 rounded-full';
+                document.getElementById('step-2-status').textContent = 'Sedang dikerjakan';
+                document.getElementById('step-2-status').className = 'text-xs font-semibold text-ocean-600';
+                document.getElementById('formula-rho').textContent = quizState.rhoFluid;
+            } else {
+                feedback.className = 'text-xs mt-2 text-rose-600 font-medium';
+                feedback.textContent = `❌ Kurang tepat. Cek pojok kanan atas bejana percobaan untuk melihat massa jenis ${quizState.fluidName}.`;
+            }
+        }
+
+        function checkStep2() {
+            const val = parseFloat(document.getElementById('input-step-2').value);
+            const feedback = document.getElementById('feedback-step-2');
+            feedback.classList.remove('hidden');
+
+            if (isNaN(val)) {
+                feedback.className = 'text-xs mt-2 text-amber-600 font-medium';
+                feedback.textContent = '⚠️ Masukkan angka volume benda yang tercelup (dalam m³).';
+                return;
+            }
+
+            // Toleransi pembulatan kecil (0.00005)
+            if (Math.abs(val - quizState.volSubmerged) <= 0.00005) {
+                feedback.className = 'text-xs mt-2 text-emerald-600 font-semibold';
+                feedback.textContent = `✅ Tepat sekali! Volume yang tercelup adalah ${quizState.volSubmerged} m³.`;
+
+                document.getElementById('step-2-card').className = 'p-4 rounded-2xl border-2 border-emerald-400 bg-emerald-50/40 transition-all';
+                document.getElementById('step-2-status').textContent = 'Selesai ✓';
+                document.getElementById('step-2-status').className = 'text-xs font-bold text-emerald-600';
+                document.getElementById('input-step-2').disabled = true;
+                document.getElementById('btn-step-2').disabled = true;
+
+                // Buka Langkah 3
+                const s3Card = document.getElementById('step-3-card');
+                s3Card.className = 'p-4 rounded-2xl border-2 border-mint-500 bg-white transition-all';
+                document.getElementById('step-3-badge').className = 'text-xs font-bold bg-mint-600 text-white px-2.5 py-0.5 rounded-full';
+                document.getElementById('step-3-status').textContent = 'Langkah Terakhir';
+                document.getElementById('step-3-status').className = 'text-xs font-semibold text-mint-600';
+                document.getElementById('formula-vbf').textContent = quizState.volSubmerged;
+            } else {
+                feedback.className = 'text-xs mt-2 text-rose-600 font-medium';
+                const hint = quizState.condition === 'TERAPUNG'
+                    ? 'Karena benda TERAPUNG, volume tercelup lebih kecil dari volume total benda.'
+                    : 'Karena seluruh benda berada di dalam cairan, volume tercelup sama dengan volume total benda.';
+                feedback.textContent = `❌ Belum tepat. ${hint} Lihat kotak "Volume Tercelup" di bawah bejana.`;
+            }
+        }
+
+        function checkStep3() {
+            const val = parseFloat(document.getElementById('input-step-3').value);
+            const feedback = document.getElementById('feedback-step-3');
+            feedback.classList.remove('hidden');
+
+            if (isNaN(val)) {
+                feedback.className = 'text-xs mt-2 text-amber-600 font-medium';
+                feedback.textContent = '⚠️ Masukkan hasil perkalian gaya apung dalam satuan Newton (N).';
+                return;
+            }
+
+            // Toleransi 0.15 N
+            if (Math.abs(val - quizState.buoyantFa) <= 0.15) {
+                feedback.className = 'text-xs mt-2 text-emerald-600 font-semibold';
+                feedback.textContent = `🎉 Sempurna! F_A = ${quizState.rhoFluid} × 10 × ${quizState.volSubmerged} = ${quizState.buoyantFa} N.`;
+
+                document.getElementById('step-3-card').className = 'p-4 rounded-2xl border-2 border-emerald-400 bg-emerald-50/40 transition-all';
+                document.getElementById('step-3-status').textContent = 'Selesai ✓';
+                document.getElementById('step-3-status').className = 'text-xs font-bold text-emerald-600';
+                document.getElementById('input-step-3').disabled = true;
+                document.getElementById('btn-step-3').disabled = true;
+
+                // Tampilkan Kesimpulan Fisika
+                const conclusionBox = document.getElementById('final-conclusion-box');
+                const explanationText = document.getElementById('final-explanation-text');
+                conclusionBox.classList.remove('hidden');
+
+                if (quizState.condition === 'TERAPUNG') {
+                    explanationText.innerHTML = `Gaya apung sebesar <strong>${quizState.buoyantFa} N</strong> tepat mengimbangi gaya berat benda (<strong>W = ${quizState.weightW} N</strong>), sehingga benda <strong>TERAPUNG</strong> stabil di permukaan ${quizState.fluidName}.`;
+                } else if (quizState.condition === 'MELAYANG') {
+                    explanationText.innerHTML = `Gaya apung sebesar <strong>${quizState.buoyantFa} N</strong> sama besar dengan gaya berat benda (<strong>W = ${quizState.weightW} N</strong>) saat seluruh volume benda tercelup, sehingga benda <strong>MELAYANG</strong>.`;
+                } else {
+                    explanationText.innerHTML = `Gaya apung maksimal hanya <strong>${quizState.buoyantFa} N</strong>, lebih kecil daripada gaya berat benda (<strong>W = ${quizState.weightW} N</strong>), sehingga benda <strong>TENGGELAM</strong> ke dasar bejana.`;
+                }
+            } else {
+                feedback.className = 'text-xs mt-2 text-rose-600 font-medium';
+                feedback.textContent = `❌ Coba hitung ulang perkalian: ${quizState.rhoFluid} × 10 × ${quizState.volSubmerged}.`;
+            }
+        }
+
+        // MODAL PANDUAN
+        function toggleGuideModal(show) {
+            const modal = document.getElementById('guide-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // INISIALISASI SAAT HALAMAN DIMUAT
+        window.onload = function() {
+            selectFluid('water');
+            syncQuizWithSimulation();
+            animateObject();
+        };
+    </script>
+</body>
+</html>
